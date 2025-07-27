@@ -1,0 +1,26 @@
+---
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 100
+SortIncludes: 'true'
+
+# Make sure function parameters are either in the same line as the declaration
+# or each on their own line.
+AlignAfterOpenBracket: BlockIndent
+BinPackArguments: 'false'
+BinPackParameters: 'false'
+AllowAllArgumentsOnNextLine: 'false'
+AllowAllParametersOfDeclarationOnNextLine: 'false'
+PenaltyReturnTypeOnItsOwnLine: 100
+PenaltyBreakBeforeFirstCallParameter: 10
+
+# Insert braces for 'if'
+InsertBraces: 'true'
+
+# Add empty lines between definitions
+SeparateDefinitionBlocks: Always
+
+# Always expand declarations
+AllowShortBlocksOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: 'false'
+AllowShortFunctionsOnASingleLine: 'None'
