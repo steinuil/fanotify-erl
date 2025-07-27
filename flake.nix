@@ -18,7 +18,8 @@
       {
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
-            erlang_26
+            # erlang
+            beam27Packages.erlang
             erlang-ls
             rebar3
 
