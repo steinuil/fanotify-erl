@@ -24,6 +24,8 @@
 %%         io:format("Received ~w event on /tmp/dir2/~s~n", [EventType, File])
 %% end.
 %%
+%% % Close the notification group when done.
+%% nil = fanotify:close(Group).
 %% '''
 %%
 %% [https://man7.org/linux/man-pages/man7/fanotify.7.html]

@@ -1,6 +1,6 @@
 {application, fanotify, [
-  {description, "Bindings to fanotify"},
-  {vsn, "0.1.0"},
+  {description, "Low-level bindings to fanotify"},
+  {vsn, "0.1.1"},
   {registered, []},
   {applications, [kernel, stdlib]},
   {env, []},
