@@ -1,13 +1,10 @@
 {application, fanotify, [
-    {description, "An OTP library"},
-    {vsn, "0.1.0"},
-    {registered, []},
-    {applications, [
-        kernel,
-        stdlib
-    ]},
-    {env, []},
-    {modules, []},
-    {licenses, ["Apache-2.0"]},
-    {links, []}
- ]}.
+  {description, "Bindings to fanotify"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {env, []},
+  {modules, []},
+  {licenses, ["ISC"]},
+  {links, [{"GitHub", "https://github.com/steinuil/fanotify-erl"}]}
+]}.

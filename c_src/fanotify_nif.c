@@ -50,7 +50,7 @@ static ERL_NIF_TERM mark_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]
     }
 
     uint64_t fanotify_mask;
-    if (!enif_get_uint64(env, argv[2], &fanotify_mask)) {
+    if (!enif_get_uint64(env, argv[3], &fanotify_mask)) {
         return enif_make_badarg(env);
     }
 
