@@ -1,8 +1,18 @@
+%% @author steenuil
+%% @doc A low-level Erlang interface to the Linux `fanotify' API.
+%%
+%% [https://man7.org/linux/man-pages/man7/fanotify.7.html]
+%%
+%% This library focuses on receiving notifications for filesystem objects
+%% and does not support intercepting events.
+%%
+%% @end
+
 -module(fanotify).
 
 -export([new/0, mark/4, read/2, close/1]).
 
--export_type([fd/0, flag/0]).
+-export_type([group/0, action/0, mask/0, event/0, info/0, file_handle/0]).
 
 -nifs([{new_nif, 0}, {mark_nif, 4}, {read_nif, 2}, {close_nif, 1}]).
 
@@ -10,9 +20,16 @@
 
 %% Types
 
--opaque fd() :: {fanotify_fd, non_neg_integer()}.
+-opaque group() :: {fanotify_fd, non_neg_integer()}.
+%% A fanotify group.
+%%
+%% Internally, this is represented as a file descriptor for the event queue
+%% associated with the group.
 
--type flag() :: add | remove | dont_follow | onlydir | ignored_mask | evictable | ignore.
+-type action() ::
+    add | remove | dont_follow | onlydir | ignored_mask | evictable | ignore.
+%% Action to perform on the notification group.
+
 -type mask() ::
     access |
     modify |
@@ -34,7 +51,11 @@
     event_on_child |
     rename |
     ondir.
+%% Type of events that should be affected by the specified action.
+
 -type event() :: {event, non_neg_integer(), [mask()], [info()]}.
+%% Notification event.
+
 -type info() ::
     {fid, file_handle()} |
     {dfid, file_handle()} |
@@ -42,10 +63,17 @@
     {new_dfid_name, file_handle(), binary()} |
     {old_dfid_name, file_handle(), binary()} |
     {unknown, non_neg_integer(), binary()}.
--type file_handle() :: {file_handle, integer(), binary()}.
+%% Additional event information.
 
-%% Create a fanotify fd.
--spec new() -> fd() | {error, integer()}.
+-type file_handle() :: {file_handle, integer(), binary()}.
+%% A file handle.
+
+%% @doc Create a fanotify group.
+%%
+%% Currently the notification class supported is
+%% `FAN_CLASS_NOTIF | FAN_REPORT_DFID_NAME', as the others require the
+%% `CAP_SYS_ADMIN' capability.
+-spec new() -> group() | {error, integer()}.
 new() ->
     case new_nif() of
         {error, E} ->
@@ -54,8 +82,11 @@ new() ->
             {fanotify_fd, Fd}
     end.
 
-%% Mark a file or a directory to get notifications.
--spec mark(fd(), string() | unicode:unicode_binary(), [flag()], [mask()]) ->
+%% @doc Add, remove, or modify a fanotify mark on a filesystem object.
+%%
+%% The caller must have read permissions on the filesystem object that is
+%% to be marked.
+-spec mark(group(), string() | unicode:unicode_binary(), [action()], [mask()]) ->
               nil | {error, integer()}.
 mark({fanotify_fd, Fd}, Path, Flags, Mask) ->
     mark_nif(Fd,
@@ -63,7 +94,7 @@ mark({fanotify_fd, Fd}, Path, Flags, Mask) ->
              mark_flags(Flags, 0),
              mark_mask(Mask, 0)).
 
--spec mark_flags([flag()], non_neg_integer()) -> non_neg_integer().
+-spec mark_flags([action()], non_neg_integer()) -> non_neg_integer().
 mark_flags([add | Rest], Flags) ->
     mark_flags(Rest, Flags bor 16#00000001);
 mark_flags([remove | Rest], Flags) ->
@@ -125,7 +156,8 @@ mark_mask([ondir | Rest], Mask) ->
 mark_mask([], Mask) ->
     Mask.
 
--spec read(fd(), pos_integer()) -> [event()] | {error, integer()}.
+%% @doc Read the queued notification events on the notification group.
+-spec read(group(), pos_integer()) -> [event()] | {error, integer()}.
 read({fanotify_fd, Fd}, Count) ->
     case read_nif(Fd, Count) of
         {error, E} ->
@@ -264,8 +296,8 @@ parse_zero_terminated_string(Bin, Length) ->
             parse_zero_terminated_string(Bin, Length + 1)
     end.
 
-%% Close the Fd.
--spec close(fd()) -> nil | {error, integer()}.
+%% @doc Close the notification group, stopping the monitoring of events.
+-spec close(group()) -> nil | {error, integer()}.
 close({fanotify_fd, Fd}) ->
     close_nif(Fd).
 

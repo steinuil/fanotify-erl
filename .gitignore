@@ -3,6 +3,7 @@
 .cache/
 compile_commands.json
 priv/
+doc/
 
 # rebar3 .gitignore
 .rebar3
